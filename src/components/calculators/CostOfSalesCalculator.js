@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Minus, Trash2, Save, FileInput } from 'lucide-react';
+import { Plus, Minus, Trash2, Save } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/Card';
@@ -13,16 +13,19 @@ const parseFormattedNumber = (str) => {
 };
 
 const CostOfSalesCalculator = () => {
-  const [materials, setMaterials] = useState([{ name: 'Material 1', cost: '' }]);
-  const [sellingPrice, setSellingPrice] = useState('');
-  const [savedCalculations, setSavedCalculations] = useState(() => {
-    const saved = localStorage.getItem('costOfSalesCalculations');
-    return saved ? JSON.parse(saved) : [];
+  const [materials, setMaterials] = useState(() => {
+    const saved = localStorage.getItem('costOfSalesMaterials');
+    return saved ? JSON.parse(saved) : [{ name: 'Material 1', cost: '' }];
+  });
+  const [sellingPrice, setSellingPrice] = useState(() => {
+    const saved = localStorage.getItem('costOfSalesSellingPrice');
+    return saved ? JSON.parse(saved) : '';
   });
 
   useEffect(() => {
-    localStorage.setItem('costOfSalesCalculations', JSON.stringify(savedCalculations));
-  }, [savedCalculations]);
+    localStorage.setItem('costOfSalesMaterials', JSON.stringify(materials));
+    localStorage.setItem('costOfSalesSellingPrice', JSON.stringify(sellingPrice));
+  }, [materials, sellingPrice]);
 
   const handleMaterialChange = (index, field, value) => {
     const newMaterials = [...materials];
@@ -42,33 +45,19 @@ const CostOfSalesCalculator = () => {
     if (window.confirm('Are you sure you want to clear all data? This will reset the form.')) {
       setMaterials([{ name: 'Material 1', cost: '' }]);
       setSellingPrice('');
+      localStorage.removeItem('costOfSalesMaterials');
+      localStorage.removeItem('costOfSalesSellingPrice');
     }
   };
 
   const saveData = () => {
-    const calculationName = prompt('Enter a name for this calculation:');
-    if (calculationName) {
-      const newCalculation = {
-        name: calculationName,
-        materials,
-        sellingPrice,
-        date: new Date().toISOString()
-      };
-      setSavedCalculations([...savedCalculations, newCalculation]);
-    }
-  };
-
-  const loadCalculation = (calculation) => {
-    if (window.confirm(`Are you sure you want to load "${calculation.name}"? This will overwrite your current data.`)) {
-      setMaterials(calculation.materials);
-      setSellingPrice(calculation.sellingPrice);
-    }
-  };
-
-  const deleteCalculation = (index) => {
-    if (window.confirm('Are you sure you want to delete this saved calculation?')) {
-      const newSavedCalculations = savedCalculations.filter((_, i) => i !== index);
-      setSavedCalculations(newSavedCalculations);
+    try {
+      localStorage.setItem('costOfSalesMaterials', JSON.stringify(materials));
+      localStorage.setItem('costOfSalesSellingPrice', JSON.stringify(sellingPrice));
+      alert('Data saved successfully!');
+    } catch (error) {
+      console.error('Error saving data:', error);
+      alert('Failed to save data. Please try again.');
     }
   };
 
@@ -176,37 +165,6 @@ const CostOfSalesCalculator = () => {
             </TableBody>
           </Table>
         </div>
-
-        {savedCalculations.length > 0 && (
-          <div className="mt-8">
-            <h3 className="text-lg font-semibold mb-2">Saved Calculations</h3>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {savedCalculations.map((calc, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{calc.name}</TableCell>
-                    <TableCell>{new Date(calc.date).toLocaleDateString()}</TableCell>
-                    <TableCell>
-                      <Button onClick={() => loadCalculation(calc)} size="sm" className="mr-2">
-                        <FileInput className="h-4 w-4 mr-2" /> Load
-                      </Button>
-                      <Button onClick={() => deleteCalculation(index)} size="sm" variant="destructive">
-                        <Trash2 className="h-4 w-4 mr-2" /> Delete
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        )}
       </CardContent>
     </Card>
   );
