@@ -35,15 +35,10 @@ const OpexCalculator = () => {
     const saved = localStorage.getItem('opexExpenses');
     return saved ? JSON.parse(saved) : [
       { name: 'Salaries and Wages', amount: 0, frequency: 'Monthly' },
-      { name: 'Rent', amount: 2000, frequency: 'Monthly' },
-      { name: 'Utilities', amount: 500, frequency: 'Monthly' },
-      { name: 'Insurance', amount: 300, frequency: 'Monthly' },
-      { name: 'Marketing and Advertising', amount: 1000, frequency: 'Monthly' },
-      { name: 'Office Supplies', amount: 200, frequency: 'Monthly' },
-      { name: 'Professional Services', amount: 500, frequency: 'Monthly' },
-      { name: 'Technology and Software', amount: 400, frequency: 'Monthly' },
-      { name: 'Travel and Transportation', amount: 600, frequency: 'Monthly' },
-      { name: 'Maintenance and Repairs', amount: 300, frequency: 'Monthly' },
+      { name: 'Rent', amount: 0, frequency: 'Monthly' },
+      { name: 'Utilities', amount: 0, frequency: 'Monthly' },
+      { name: 'Insurance', amount: 0, frequency: 'Monthly' },
+      { name: 'Software and Technology', amount: 0, frequency: 'Monthly' },
     ];
   });
 
@@ -118,15 +113,10 @@ const OpexCalculator = () => {
     if (window.confirm('Are you sure you want to clear all data? This will reset the form and clear saved data.')) {
       setExpenses([
         { name: 'Salaries and Wages', amount: 0, frequency: 'Monthly' },
-        { name: 'Rent', amount: 2000, frequency: 'Monthly' },
-        { name: 'Utilities', amount: 500, frequency: 'Monthly' },
-        { name: 'Insurance', amount: 300, frequency: 'Monthly' },
-        { name: 'Marketing and Advertising', amount: 1000, frequency: 'Monthly' },
-        { name: 'Office Supplies', amount: 200, frequency: 'Monthly' },
-        { name: 'Professional Services', amount: 500, frequency: 'Monthly' },
-        { name: 'Technology and Software', amount: 400, frequency: 'Monthly' },
-        { name: 'Travel and Transportation', amount: 600, frequency: 'Monthly' },
-        { name: 'Maintenance and Repairs', amount: 300, frequency: 'Monthly' },
+        { name: 'Rent', amount: 0, frequency: 'Monthly' },
+        { name: 'Utilities', amount: 0, frequency: 'Monthly' },
+        { name: 'Insurance', amount: 0, frequency: 'Monthly' },
+        { name: 'Software and Technology', amount: 0, frequency: 'Monthly' },
       ]);
       localStorage.removeItem('opexExpenses');
       setUseWorkforceData(true);
@@ -198,7 +188,7 @@ const OpexCalculator = () => {
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D', '#A4DE6C', '#D0ED57', '#FFA07A', '#20B2AA'];
 
   const pieChartData = expenses.map(item => ({
-    name: item.name,
+    name: item.name || 'Unnamed Expense',
     value: calculateMonthlyAmount(item)
   }));
 
@@ -222,7 +212,7 @@ const OpexCalculator = () => {
                 value={item.name}
                 onChange={(e) => handleExpenseChange(index, 'name', e.target.value)}
                 className="w-full"
-                placeholder="Expense Name"
+                placeholder={index === 0 ? "Salaries and Wages" : "Expense Name"}
                 disabled={useWorkforceData && item.name === 'Salaries and Wages'}
               />
             </TableCell>
