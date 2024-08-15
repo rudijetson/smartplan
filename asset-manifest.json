@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/smartplan/static/css/main.6559eed3.css",
+    "main.js": "/smartplan/static/js/main.40230ce0.js",
+    "index.html": "/smartplan/index.html",
+    "main.6559eed3.css.map": "/smartplan/static/css/main.6559eed3.css.map",
+    "main.40230ce0.js.map": "/smartplan/static/js/main.40230ce0.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.6559eed3.css",
+    "static/js/main.40230ce0.js"
+  ]
+}
