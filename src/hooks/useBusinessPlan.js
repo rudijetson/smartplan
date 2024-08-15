@@ -1,4 +1,4 @@
-// src/hooks/useBusinessPlan.js
+// src/components/hooks/useBusinessPlan.js
 
 import { useContext } from 'react';
 import { BusinessPlanContext } from '../contexts/BusinessPlanContext';

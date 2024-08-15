@@ -1,3 +1,4 @@
+// Imports
 import React, { useState, useEffect } from 'react';
 import { Plus, Minus, Save, Trash2, FileInput } from 'lucide-react';
 import { Button } from '../ui/Button';
@@ -7,9 +8,9 @@ import { Card, CardHeader, CardTitle, CardContent } from '../ui/Card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/Table";
 import { useBusinessPlan } from '../../hooks/useBusinessPlan';
 
-// SECTION: Component Definition
+// Component Definition
 const SourceOfFundsCalculator = () => {
-  // SECTION: Hooks and State
+  // Hooks and State
   const { startupCosts } = useBusinessPlan();
 
   const [fundingSources, setFundingSources] = useState(() => {
@@ -27,13 +28,13 @@ const SourceOfFundsCalculator = () => {
     return saved ? JSON.parse(saved) : [];
   });
 
-  // SECTION: useEffect for localStorage
+  // useEffect for localStorage
   useEffect(() => {
     localStorage.setItem('fundingSources', JSON.stringify(fundingSources));
     localStorage.setItem('savedSourceOfFundsCalculations', JSON.stringify(savedCalculations));
   }, [fundingSources, savedCalculations]);
 
-  // SECTION: Utility Functions
+  // Utility Functions
   const formatPercentage = (num) => {
     return `${Math.round(num || 0)}%`;
   };
@@ -46,7 +47,7 @@ const SourceOfFundsCalculator = () => {
     return (num || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 });
   };
 
-  // SECTION: Event Handlers
+  // Event Handlers
   const removeFundingSource = (index) => {
     setFundingSources(prevSources => prevSources.filter((_, i) => i !== index));
   };
@@ -81,7 +82,7 @@ const SourceOfFundsCalculator = () => {
     setFundingSources([...fundingSources, { source: '', type: 'equity', percentage: 0, amount: 0 }]);
   };
 
-  // SECTION: Calculation Functions
+  // Calculation Functions
   const calculatePMT = (rate, nper, pv) => {
     if (rate === 0) return -pv / nper;
     const pvif = Math.pow(1 + rate, nper);
@@ -117,7 +118,7 @@ const SourceOfFundsCalculator = () => {
     setFundingSources(updatedSources);
   };
 
-  // SECTION: Save and Load Functions
+  // Save and Load Functions
   const clearAll = () => {
     if (window.confirm('Are you sure you want to clear all data? This will reset the form and clear saved data.')) {
       setFundingSources([
@@ -155,7 +156,7 @@ const SourceOfFundsCalculator = () => {
     }
   };
 
-  // SECTION: Render Functions
+  // Render Functions
   const renderFundingSourcesTable = () => (
     <div className="overflow-x-auto">
       <Table>
@@ -262,98 +263,110 @@ const SourceOfFundsCalculator = () => {
     </div>
   );
 
-// SECTION: Calculations
+  // Calculations
   const totalSourceOfFunds = fundingSources.reduce((sum, source) => sum + (source.amount || 0), 0);
   const fundingGap = startupCosts.totalFundsNeeded ? startupCosts.totalFundsNeeded - totalSourceOfFunds : 0;
 
-
- // SECTION: Component Return
- return (
-  <Card className="w-full max-w-4xl mx-auto">
-    <CardHeader className="flex flex-row items-center justify-between">
-      <CardTitle className="text-2xl">Source of Funds Calculator</CardTitle>
-      <div className="flex space-x-2">
-        <Button onClick={clearAll} variant="outline" size="sm">
-          <Trash2 className="h-4 w-4 mr-2" /> Reset
-        </Button>
-        <Button onClick={saveCalculation} size="sm">
-          <Save className="h-4 w-4 mr-2" /> Save
-        </Button>
-      </div>
-    </CardHeader>
-    <CardContent>
-      {startupCosts.totalFundsNeeded && (
-        <div className="mb-4 p-4 bg-blue-50 rounded-lg">
-          <h3 className="text-lg font-semibold mb-2">Total Startup Costs</h3>
-          <p className="text-2xl font-bold text-blue-600">
-            {formatAmount(startupCosts.totalFundsNeeded)}
-          </p>
+  // Component Return
+  return (
+    <Card className="w-full max-w-4xl mx-auto">
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle className="text-2xl">Source of Funds Calculator</CardTitle>
+        <div className="flex space-x-2">
+          <Button onClick={clearAll} variant="outline" size="sm">
+            <Trash2 className="h-4 w-4 mr-2" /> Reset
+          </Button>
+          <Button onClick={saveCalculation} size="sm">
+            <Save className="h-4 w-4 mr-2" /> Save
+          </Button>
         </div>
-      )}
-
-      {renderFundingSourcesTable()}
-      <Button onClick={addFundingSource} size="sm" className="mt-4">
-        <Plus className="h-4 w-4 mr-2" /> Add Funding Source
-      </Button>
-
-      <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-        <h3 className="text-xl font-semibold mb-4">Summary</h3>
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <p className="font-medium">Total Funds Sourced:</p>
-            <p className="text-lg text-green-600">{formatAmount(fundingSources.reduce((sum, row) => sum + (row.amount || 0), 0))}</p>
+      </CardHeader>
+      <CardContent>
+        {startupCosts.totalFundsNeeded ? (
+          <div className="mb-4 p-4 bg-blue-50 rounded-lg">
+            <h3 className="text-lg font-semibold mb-2">Total Startup Costs</h3>
+            <p className="text-2xl font-bold text-blue-600">
+              {formatAmount(startupCosts.totalFundsNeeded)}
+            </p>
           </div>
-          {startupCosts.totalFundsNeeded && (
-            <div>
-              <p className="font-medium">Total Startup Costs:</p>
-              <p className="text-lg text-blue-600">{formatAmount(startupCosts.totalFundsNeeded)}</p>
-            </div>
-          )}
-          {startupCosts.totalFundsNeeded && (
-            <div className="col-span-2">
-              <p className="font-medium">Funding Gap:</p>
-              <p className={`text-xl font-bold ${fundingGap > 0 ? 'text-red-600' : 'text-green-600'}`}>
-                {formatAmount(Math.abs(fundingGap))}
-                {fundingGap > 0 ? ' (Additional Funding Needed)' : ' (Excess Funding)'}
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
+        ) : (
+          <div className="mb-4 p-4 bg-yellow-50 rounded-lg">
+            <h3 className="text-lg font-semibold mb-2">Startup Costs Not Available</h3>
+            <p className="text-md text-yellow-700">
+              Please complete the Startup Costs calculator to see your total startup costs here.
+            </p>
+          </div>
+        )}
 
-      {savedCalculations.length > 0 && (
-        <div className="mt-6">
-          <h3 className="text-lg font-semibold mb-2">Saved Calculations</h3>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {savedCalculations.map((calc, index) => (
-                <TableRow key={index}>
-                  <TableCell>{calc.name}</TableCell>
-                  <TableCell>{new Date(calc.date).toLocaleDateString()}</TableCell>
-                  <TableCell>
-                    <Button onClick={() => loadCalculation(calc)} size="sm" className="mr-2">
-                      <FileInput className="h-4 w-4 mr-2" /> Load
-                    </Button>
-                    <Button onClick={() => deleteCalculation(index)} size="sm" variant="destructive">
-                      <Trash2 className="h-4 w-4 mr-2" /> Delete
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+        {renderFundingSourcesTable()}
+        <Button onClick={addFundingSource} size="sm" className="mt-4">
+          <Plus className="h-4 w-4 mr-2" /> Add Funding Source
+        </Button>
+
+        <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+          <h3 className="text-xl font-semibold mb-4">Summary</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="font-medium">Total Funds Sourced:</p>
+              <p className="text-lg text-green-600">{formatAmount(totalSourceOfFunds)}</p>
+            </div>
+            {startupCosts.totalFundsNeeded ? (
+              <>
+                <div>
+                  <p className="font-medium">Total Startup Costs:</p>
+                  <p className="text-lg text-blue-600">{formatAmount(startupCosts.totalFundsNeeded)}</p>
+                </div>
+                <div className="col-span-2">
+                  <p className="font-medium">Funding Gap:</p>
+                  <p className={`text-xl font-bold ${fundingGap > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                    {formatAmount(Math.abs(fundingGap))}
+                    {fundingGap > 0 ? ' (Additional Funding Needed)' : ' (Excess Funding)'}
+                  </p>
+                </div>
+              </>
+            ) : (
+              <div className="col-span-2">
+                <p className="font-medium text-yellow-600">
+                  Complete the Startup Costs calculator to see the funding gap analysis.
+                </p>
+              </div>
+            )}
+          </div>
         </div>
-      )}
-    </CardContent>
-  </Card>
-);
+
+        {savedCalculations.length > 0 && (
+          <div className="mt-6">
+            <h3 className="text-lg font-semibold mb-2">Saved Calculations</h3>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {savedCalculations.map((calc, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{calc.name}</TableCell>
+                    <TableCell>{new Date(calc.date).toLocaleDateString()}</TableCell>
+                    <TableCell>
+                      <Button onClick={() => loadCalculation(calc)} size="sm" className="mr-2">
+                        <FileInput className="h-4 w-4 mr-2" /> Load
+                      </Button>
+                      <Button onClick={() => deleteCalculation(index)} size="sm" variant="destructive">
+                        <Trash2 className="h-4 w-4 mr-2" /> Delete
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
 };
 
-export default SourceOfFundsCalculator; 
+export default SourceOfFundsCalculator;

@@ -25,4 +25,4 @@ const Switch = React.forwardRef(({ className = '', checked, onCheckedChange, ...
 
 Switch.displayName = 'Switch';
 
-export { Switch };
+export  { Switch };

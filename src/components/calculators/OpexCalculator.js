@@ -1,22 +1,23 @@
 // Imports
-import React, { useState, useEffect } from 'react';
-import { Plus, Minus, DollarSign, Save, Trash2, FileInput } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Plus, Minus, Save, Trash2, FileInput } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/Card';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../ui/Table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/Table";
+import { Switch } from '../ui/Switch';
+import { useBusinessPlan } from '../../hooks/useBusinessPlan';
+import { useToast } from '../ui/Toast';
+import debounce from 'lodash/debounce';
 
 // Utility functions
 const formatNumber = (num) => {
-  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  if (Number.isInteger(num)) {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  } else {
+    return num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
 };
 
 const parseFormattedNumber = (str) => {
@@ -25,20 +26,24 @@ const parseFormattedNumber = (str) => {
 
 // Component definition
 const OpexCalculator = () => {
+  // Context
+  const { workforce, setOpex } = useBusinessPlan();
+  const { addToast } = useToast();
+  
   // State definitions
   const [expenses, setExpenses] = useState(() => {
     const saved = localStorage.getItem('opexExpenses');
     return saved ? JSON.parse(saved) : [
+      { name: 'Salaries and Wages', amount: 0, frequency: 'Monthly' },
       { name: 'Rent', amount: 2000, frequency: 'Monthly' },
       { name: 'Utilities', amount: 500, frequency: 'Monthly' },
-      { name: 'Salaries and Wages', amount: 10000, frequency: 'Monthly' },
       { name: 'Insurance', amount: 300, frequency: 'Monthly' },
       { name: 'Marketing and Advertising', amount: 1000, frequency: 'Monthly' },
       { name: 'Office Supplies', amount: 200, frequency: 'Monthly' },
-      { name: 'Maintenance and Repairs', amount: 300, frequency: 'Monthly' },
       { name: 'Professional Services', amount: 500, frequency: 'Monthly' },
       { name: 'Technology and Software', amount: 400, frequency: 'Monthly' },
       { name: 'Travel and Transportation', amount: 600, frequency: 'Monthly' },
+      { name: 'Maintenance and Repairs', amount: 300, frequency: 'Monthly' },
     ];
   });
 
@@ -47,11 +52,47 @@ const OpexCalculator = () => {
     return saved ? JSON.parse(saved) : [];
   });
 
+  const [useWorkforceData, setUseWorkforceData] = useState(() => {
+    const saved = localStorage.getItem('useWorkforceData');
+    return saved ? JSON.parse(saved) : true; // Default to true
+  });
+
   // useEffect for localStorage
   useEffect(() => {
     localStorage.setItem('opexExpenses', JSON.stringify(expenses));
     localStorage.setItem('savedOpexCalculations', JSON.stringify(savedCalculations));
-  }, [expenses, savedCalculations]);
+    localStorage.setItem('useWorkforceData', JSON.stringify(useWorkforceData));
+  }, [expenses, savedCalculations, useWorkforceData]);
+
+  // Debounced addToast function
+  const debouncedAddToast = useCallback(
+    debounce((message) => {
+      addToast(message);
+    }, 1000),
+    [addToast]
+  );
+
+  // Effect to update expenses when workforce data changes
+  useEffect(() => {
+    if (useWorkforceData) {
+      setExpenses(prevExpenses => {
+        const newExpenses = prevExpenses.map(expense => 
+          expense.name === 'Salaries and Wages' 
+            ? { ...expense, amount: workforce?.totalMonthlyExpenses || 0 } 
+            : expense
+        );
+        
+        // Only update and show toast if the amount has changed
+        const salariesExpense = prevExpenses.find(e => e.name === 'Salaries and Wages');
+        if (salariesExpense && salariesExpense.amount !== (workforce?.totalMonthlyExpenses || 0)) {
+          debouncedAddToast('Salaries and Wages updated from workforce data');
+          return newExpenses;
+        }
+        
+        return prevExpenses;
+      });
+    }
+  }, [useWorkforceData, workforce, debouncedAddToast]);
 
   // Event handlers
   const handleExpenseChange = (index, field, value) => {
@@ -76,18 +117,19 @@ const OpexCalculator = () => {
   const clearAll = () => {
     if (window.confirm('Are you sure you want to clear all data? This will reset the form and clear saved data.')) {
       setExpenses([
+        { name: 'Salaries and Wages', amount: 0, frequency: 'Monthly' },
         { name: 'Rent', amount: 2000, frequency: 'Monthly' },
         { name: 'Utilities', amount: 500, frequency: 'Monthly' },
-        { name: 'Salaries and Wages', amount: 10000, frequency: 'Monthly' },
         { name: 'Insurance', amount: 300, frequency: 'Monthly' },
         { name: 'Marketing and Advertising', amount: 1000, frequency: 'Monthly' },
         { name: 'Office Supplies', amount: 200, frequency: 'Monthly' },
-        { name: 'Maintenance and Repairs', amount: 300, frequency: 'Monthly' },
         { name: 'Professional Services', amount: 500, frequency: 'Monthly' },
         { name: 'Technology and Software', amount: 400, frequency: 'Monthly' },
         { name: 'Travel and Transportation', amount: 600, frequency: 'Monthly' },
+        { name: 'Maintenance and Repairs', amount: 300, frequency: 'Monthly' },
       ]);
       localStorage.removeItem('opexExpenses');
+      setUseWorkforceData(true);
     }
   };
 
@@ -97,6 +139,7 @@ const OpexCalculator = () => {
       const newCalculation = {
         name: calculationName,
         expenses,
+        useWorkforceData,
         date: new Date().toISOString()
       };
       setSavedCalculations([...savedCalculations, newCalculation]);
@@ -106,6 +149,7 @@ const OpexCalculator = () => {
   const loadCalculation = (calculation) => {
     if (window.confirm(`Are you sure you want to load "${calculation.name}"? This will overwrite your current data.`)) {
       setExpenses(calculation.expenses);
+      setUseWorkforceData(calculation.useWorkforceData);
     }
   };
 
@@ -141,6 +185,15 @@ const OpexCalculator = () => {
   const totalMonthlyExpenses = calculateMonthlyTotal();
   const totalAnnualExpenses = totalMonthlyExpenses * 12;
 
+  // Update context
+  useEffect(() => {
+    setOpex({
+      totalMonthlyExpenses,
+      totalAnnualExpenses,
+      expenses
+    });
+  }, [totalMonthlyExpenses, totalAnnualExpenses, expenses, setOpex]);
+
   // Chart data
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D', '#A4DE6C', '#D0ED57', '#FFA07A', '#20B2AA'];
 
@@ -170,6 +223,7 @@ const OpexCalculator = () => {
                 onChange={(e) => handleExpenseChange(index, 'name', e.target.value)}
                 className="w-full"
                 placeholder="Expense Name"
+                disabled={useWorkforceData && item.name === 'Salaries and Wages'}
               />
             </TableCell>
             <TableCell>
@@ -179,6 +233,7 @@ const OpexCalculator = () => {
                 onChange={(e) => handleExpenseChange(index, 'amount', e.target.value)}
                 className="w-full"
                 placeholder="Amount"
+                disabled={useWorkforceData && item.name === 'Salaries and Wages'}
               />
             </TableCell>
             <TableCell>
@@ -186,6 +241,7 @@ const OpexCalculator = () => {
                 value={item.frequency}
                 onChange={(e) => handleExpenseChange(index, 'frequency', e.target.value)}
                 className="w-full border border-gray-300 rounded-md"
+                disabled={useWorkforceData && item.name === 'Salaries and Wages'}
               >
                 <option value="Weekly">Weekly</option>
                 <option value="Bi-weekly">Bi-weekly</option>
@@ -199,6 +255,7 @@ const OpexCalculator = () => {
                 variant="destructive" 
                 size="icon"
                 onClick={() => removeExpense(index)}
+                disabled={useWorkforceData && item.name === 'Salaries and Wages'}
               >
                 <Minus className="h-4 w-4" />
               </Button>
@@ -258,6 +315,17 @@ const OpexCalculator = () => {
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
+          <div className="flex items-center space-x-2 mb-4">
+            <Switch
+              checked={useWorkforceData}
+              onCheckedChange={setUseWorkforceData}
+              id="use-workforce-data"
+            />
+            <label htmlFor="use-workforce-data">
+              Use Workforce Data for Salaries and Wages
+            </label>
+          </div>
+
           <div>
             <h3 className="text-lg font-semibold mb-2">Operating Expenses</h3>
             {renderExpensesTable()}
@@ -267,10 +335,10 @@ const OpexCalculator = () => {
           </div>
 
           <div className="text-xl font-bold">
-            Total Monthly Operating Expenses: ${formatNumber(totalMonthlyExpenses.toFixed(2))}
+            Total Monthly Operating Expenses: ${formatNumber(totalMonthlyExpenses)}
           </div>
           <div className="text-xl font-bold">
-            Total Annual Operating Expenses: ${formatNumber(totalAnnualExpenses.toFixed(2))}
+            Total Annual Operating Expenses: ${formatNumber(totalAnnualExpenses)}
           </div>
 
           <div className="h-80 mt-8">
@@ -291,7 +359,7 @@ const OpexCalculator = () => {
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value) => `$${formatNumber(value.toFixed(2))}`} />
+                <Tooltip formatter={(value) => `$${formatNumber(value)}`} />
                 <Legend />
               </PieChart>
             </ResponsiveContainer>
