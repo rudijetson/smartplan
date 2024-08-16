@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/smartplan/static/css/main.ccce6066.css",
-    "main.js": "/smartplan/static/js/main.5e590ccb.js",
+    "main.css": "/smartplan/static/css/main.6559eed3.css",
+    "main.js": "/smartplan/static/js/main.40230ce0.js",
     "index.html": "/smartplan/index.html",
-    "main.ccce6066.css.map": "/smartplan/static/css/main.ccce6066.css.map",
-    "main.5e590ccb.js.map": "/smartplan/static/js/main.5e590ccb.js.map"
+    "main.6559eed3.css.map": "/smartplan/static/css/main.6559eed3.css.map",
+    "main.40230ce0.js.map": "/smartplan/static/js/main.40230ce0.js.map"
   },
   "entrypoints": [
-    "static/css/main.ccce6066.css",
-    "static/js/main.5e590ccb.js"
+    "static/css/main.6559eed3.css",
+    "static/js/main.40230ce0.js"
   ]
 }
