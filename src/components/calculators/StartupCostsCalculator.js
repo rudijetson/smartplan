@@ -7,6 +7,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/
 import { Alert, AlertDescription } from '../ui/Alert';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/Table";
 import { useBusinessPlan } from '../../hooks/useBusinessPlan';
+import { SuggestionsButton } from '../ui/SuggestionsButton';
 
 const StartupCostsCalculator = () => {
   // SECTION: Context and State
@@ -217,16 +218,31 @@ const StartupCostsCalculator = () => {
 // SECTION: Component Return
 return (
   <Card className="w-full max-w-4xl mx-auto">
-    <CardHeader className="flex flex-row items-center justify-between">
-      <CardTitle className="text-2xl">Startup Costs Calculator</CardTitle>
-      <div className="flex space-x-2">
-        <Button onClick={clearAll} variant="outline" size="sm">
-          <Trash2 className="h-4 w-4 mr-2" /> Reset
-        </Button>
-        <Button onClick={saveCalculation} size="sm">
-          <Save className="h-4 w-4 mr-2" /> Save
-        </Button>
+    <CardHeader className="flex flex-col space-y-2">
+      <div className="flex flex-row items-center justify-between">
+        <CardTitle className="text-2xl">Startup Costs Calculator</CardTitle>
+        <div className="flex space-x-2">
+          <SuggestionsButton 
+            calculatorType="startup-costs"
+            onSuggestionsReceived={(suggestions) => {
+              if (suggestions.bigPurchases) setBigPurchases(suggestions.bigPurchases);
+              if (suggestions.startingCosts) setStartingCosts(suggestions.startingCosts);
+              if (suggestions.operatingMoney) setOperatingMoney(suggestions.operatingMoney);
+            }}
+          />
+          <Button onClick={clearAll} variant="outline" size="sm">
+            <Trash2 className="h-4 w-4 mr-2" /> Reset
+          </Button>
+          <Button onClick={saveCalculation} size="sm">
+            <Save className="h-4 w-4 mr-2" /> Save
+          </Button>
+        </div>
       </div>
+      <p className="text-muted-foreground">
+        Calculate your total startup costs by entering your fixed assets, starting costs, and operating money needs. 
+        Hover over the help icons for more information about each section. You can save multiple calculations 
+        and load them later for comparison.
+      </p>
     </CardHeader>
     <CardContent>
       {renderSection(
@@ -267,17 +283,17 @@ return (
             <label htmlFor="operatingMoney" className="block text-sm font-medium text-gray-700 mb-1">
               Amount
             </label>
-            <div className="relative rounded-md shadow-sm">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <DollarSign className="h-5 w-5 text-gray-400" aria-hidden="true" />
+            <div className="relative">
+              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                <span className="text-gray-500 sm:text-sm">$</span>
               </div>
               <Input
                 type="text"
                 id="operatingMoney"
                 value={formatNumber(operatingMoney)}
                 onChange={(e) => setOperatingMoney(parseFormattedNumber(e.target.value))}
-                className="pl-10"
-                placeholder="0.00"
+                className="pl-7 pr-4"
+                placeholder="0"
               />
             </div>
           </div>

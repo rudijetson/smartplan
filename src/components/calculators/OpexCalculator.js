@@ -185,12 +185,29 @@ const OpexCalculator = () => {
   }, [totalMonthlyExpenses, totalAnnualExpenses, expenses, setOpex]);
 
   // Chart data
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D', '#A4DE6C', '#D0ED57', '#FFA07A', '#20B2AA'];
+  const COLORS = [
+    '#2563eb', // Blue
+    '#16a34a', // Green
+    '#dc2626', // Red
+    '#9333ea', // Purple
+    '#ea580c', // Orange
+    '#0891b2', // Cyan
+    '#4f46e5', // Indigo
+    '#db2777', // Pink
+    '#65a30d', // Lime
+    '#0d9488', // Teal
+  ];
 
-  const pieChartData = expenses.map(item => ({
-    name: item.name || 'Unnamed Expense',
-    value: calculateMonthlyAmount(item)
-  }));
+  const prepareChartData = () => {
+    return expenses
+      .filter(item => calculateMonthlyAmount(item) > 0) // Only show items with values
+      .map(item => ({
+        name: item.name || 'Unnamed Expense',
+        value: calculateMonthlyAmount(item),
+        formattedValue: formatNumber(calculateMonthlyAmount(item))
+      }))
+      .sort((a, b) => b.value - a.value); // Sort by value descending
+  };
 
   // Render functions
   const renderExpensesTable = () => (
@@ -292,16 +309,22 @@ const OpexCalculator = () => {
   // Component return
   return (
     <Card className="w-full max-w-4xl mx-auto">
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-2xl">Operating Expenses Calculator</CardTitle>
-        <div className="flex space-x-2">
-          <Button onClick={clearAll} variant="outline" size="sm">
-            <Trash2 className="h-4 w-4 mr-2" /> Reset
-          </Button>
-          <Button onClick={saveCalculation} size="sm">
-            <Save className="h-4 w-4 mr-2" /> Save
-          </Button>
+      <CardHeader className="flex flex-col space-y-2">
+        <div className="flex flex-row items-center justify-between">
+          <CardTitle className="text-2xl">Operating Expenses Calculator</CardTitle>
+          <div className="flex space-x-2">
+            <Button onClick={clearAll} variant="outline" size="sm">
+              <Trash2 className="h-4 w-4 mr-2" /> Reset
+            </Button>
+            <Button onClick={saveCalculation} size="sm">
+              <Save className="h-4 w-4 mr-2" /> Save
+            </Button>
+          </div>
         </div>
+        <p className="text-muted-foreground">
+          Calculate your monthly and annual operating expenses. Track recurring costs like rent, utilities, 
+          and insurance. Visualize expense distribution with the pie chart to identify major cost centers.
+        </p>
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
@@ -331,28 +354,64 @@ const OpexCalculator = () => {
             Total Annual Operating Expenses: ${formatNumber(totalAnnualExpenses)}
           </div>
 
-          <div className="h-80 mt-8">
-            <h3 className="text-lg font-semibold mb-2">Expense Distribution</h3>
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={pieChartData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                >
-                  {pieChartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+          <div className="mt-8">
+            <h3 className="text-lg font-semibold mb-4">Monthly Expense Distribution</h3>
+            <div className="flex flex-col md:flex-row items-start justify-between">
+              <div className="w-full md:w-1/2 h-[400px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={prepareChartData()}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={true}
+                      outerRadius={150}
+                      fill="#8884d8"
+                      dataKey="value"
+                      label={({ percent }) => `${(percent * 100).toFixed(1)}%`}
+                      labelStyle={{
+                        fontSize: '11px',
+                        fontWeight: '500'
+                      }}
+                    >
+                      {prepareChartData().map((entry, index) => (
+                        <Cell 
+                          key={`cell-${index}`} 
+                          fill={COLORS[index % COLORS.length]}
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      formatter={(value) => `$${formatNumber(value)}`}
+                      contentStyle={{
+                        backgroundColor: 'white',
+                        border: '1px solid #ccc',
+                        borderRadius: '4px',
+                        padding: '8px'
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              
+              <div className="w-full md:w-1/2 mt-4 md:mt-0 md:pl-8">
+                <h4 className="text-md font-semibold mb-2">Expense Breakdown</h4>
+                <div className="space-y-2">
+                  {prepareChartData().map((item, index) => (
+                    <div key={index} className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <div 
+                          className="w-4 h-4 mr-2 rounded-sm" 
+                          style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                        />
+                        <span>{item.name}</span>
+                      </div>
+                      <span className="font-medium">${item.formattedValue}</span>
+                    </div>
                   ))}
-                </Pie>
-                <Tooltip formatter={(value) => `$${formatNumber(value)}`} />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
+                </div>
+              </div>
+            </div>
           </div>
 
           {renderSavedCalculations()}

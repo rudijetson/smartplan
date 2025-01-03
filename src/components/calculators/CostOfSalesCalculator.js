@@ -120,16 +120,22 @@ const CostOfSalesCalculator = () => {
   // Render
   return (
     <Card className="w-full max-w-4xl mx-auto">
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-2xl">Cost of Proudct Calculator</CardTitle>
-        <div className="flex space-x-2">
-          <Button onClick={clearAll} variant="outline" size="sm">
-            <Trash2 className="h-4 w-4 mr-2" /> Reset
-          </Button>
-          <Button onClick={saveCalculation} size="sm">
-            <Save className="h-4 w-4 mr-2" /> Save
-          </Button>
+      <CardHeader className="flex flex-col space-y-2">
+        <div className="flex flex-row items-center justify-between">
+          <CardTitle className="text-2xl">Cost of Product Calculator</CardTitle>
+          <div className="flex space-x-2">
+            <Button onClick={clearAll} variant="outline" size="sm">
+              <Trash2 className="h-4 w-4 mr-2" /> Reset
+            </Button>
+            <Button onClick={saveCalculation} size="sm">
+              <Save className="h-4 w-4 mr-2" /> Save
+            </Button>
+          </div>
         </div>
+        <p className="text-muted-foreground">
+          Calculate costs and profit margins for your products or services. Track material costs per unit, 
+          set selling prices, and analyze profitability. Save calculations to use in your sales forecasts.
+        </p>
       </CardHeader>
       <CardContent>
         {alertMessage && (

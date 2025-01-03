@@ -470,16 +470,22 @@ const SalesForecastCalculator = () => {
   // Component return
   return (
     <Card className="w-full max-w-7xl mx-auto">
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-2xl">Multi-Year Sales Forecast Calculator</CardTitle>
-        <div className="flex space-x-2">
-          <Button onClick={clearAll} variant="outline" size="sm">
-            <Trash2 className="h-4 w-4 mr-2" /> Reset
-          </Button>
-          <Button onClick={saveCalculation} size="sm">
-            <Save className="h-4 w-4 mr-2" /> Save
-          </Button>
+      <CardHeader className="flex flex-col space-y-2">
+        <div className="flex flex-row items-center justify-between">
+          <CardTitle className="text-2xl">Multi-Year Sales Forecast Calculator</CardTitle>
+          <div className="flex space-x-2">
+            <Button onClick={clearAll} variant="outline" size="sm">
+              <Trash2 className="h-4 w-4 mr-2" /> Reset
+            </Button>
+            <Button onClick={saveCalculation} size="sm">
+              <Save className="h-4 w-4 mr-2" /> Save
+            </Button>
+          </div>
         </div>
+        <p className="text-muted-foreground">
+          Project your sales for the next three years. Add products or services, set quantities and prices, 
+          and estimate growth rates. Import costs from the Cost of Sales calculator for accurate profit margins.
+        </p>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="year1">

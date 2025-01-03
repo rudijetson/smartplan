@@ -1,4 +1,5 @@
 // src/App.js
+// hoff
 
 // Imports
 import React, { useState } from 'react';
@@ -12,6 +13,7 @@ import OpexCalculator from './components/calculators/OpexCalculator';
 import SummaryStatement from './components/SummaryStatement';
 import { BusinessPlanProvider } from './contexts/BusinessPlanContext';
 import { ToastProvider } from './components/ui/Toast';
+import Header from './components/Header';
 
 // App component
 function App() {
@@ -27,40 +29,42 @@ function App() {
   return (
     <BusinessPlanProvider>
       <ToastProvider>
-        <div className="container mx-auto p-4">
-          <h1 className="text-3xl font-bold mb-6 text-center">Business Plan Financial Calculators</h1>
-          <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-            <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7">
-              <TabsTrigger value="startup-costs">Startup Costs</TabsTrigger>
-              <TabsTrigger value="source-of-funds">Source of Funds</TabsTrigger>
-              <TabsTrigger value="cost-of-sales">Cost of Sales</TabsTrigger>
-              <TabsTrigger value="sales-forecast">Sales Forecast</TabsTrigger>
-              <TabsTrigger value="workforce">Workforce</TabsTrigger>
-              <TabsTrigger value="opex">Operating Expenses</TabsTrigger>
-              <TabsTrigger value="summary">Financial Summary</TabsTrigger>
-            </TabsList>
-            <TabsContent value="startup-costs">
-              <StartupCostsCalculator />
-            </TabsContent>
-            <TabsContent value="source-of-funds">
-              <SourceOfFundsCalculator />
-            </TabsContent>
-            <TabsContent value="cost-of-sales">
-              <CostOfSalesCalculator />
-            </TabsContent>
-            <TabsContent value="sales-forecast">
-              <SalesForecastCalculator />
-            </TabsContent>
-            <TabsContent value="workforce">
-              <WorkforceCalculator />
-            </TabsContent>
-            <TabsContent value="opex">
-              <OpexCalculator />
-            </TabsContent>
-            <TabsContent value="summary">
-              <SummaryStatement onTabChange={handleTabChange} />
-            </TabsContent>
-          </Tabs>
+        <div className="min-h-screen bg-gray-50 py-8">
+          <div className="container mx-auto px-4">
+            <Header />
+            <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+              <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7">
+                <TabsTrigger value="startup-costs">Startup Costs</TabsTrigger>
+                <TabsTrigger value="source-of-funds">Source of Funds</TabsTrigger>
+                <TabsTrigger value="cost-of-sales">Cost of Sales</TabsTrigger>
+                <TabsTrigger value="sales-forecast">Sales Forecast</TabsTrigger>
+                <TabsTrigger value="workforce">Workforce</TabsTrigger>
+                <TabsTrigger value="opex">Operating Expenses</TabsTrigger>
+                <TabsTrigger value="summary">Financial Summary</TabsTrigger>
+              </TabsList>
+              <TabsContent value="startup-costs">
+                <StartupCostsCalculator />
+              </TabsContent>
+              <TabsContent value="source-of-funds">
+                <SourceOfFundsCalculator />
+              </TabsContent>
+              <TabsContent value="cost-of-sales">
+                <CostOfSalesCalculator />
+              </TabsContent>
+              <TabsContent value="sales-forecast">
+                <SalesForecastCalculator />
+              </TabsContent>
+              <TabsContent value="workforce">
+                <WorkforceCalculator />
+              </TabsContent>
+              <TabsContent value="opex">
+                <OpexCalculator />
+              </TabsContent>
+              <TabsContent value="summary">
+                <SummaryStatement onTabChange={handleTabChange} />
+              </TabsContent>
+            </Tabs>
+          </div>
         </div>
       </ToastProvider>
     </BusinessPlanProvider>

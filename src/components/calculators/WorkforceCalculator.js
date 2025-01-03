@@ -421,16 +421,22 @@ const renderYearTab = (year) => (
 // Component return
 return (
   <Card className="w-full max-w-7xl mx-auto">
-    <CardHeader className="flex flex-row items-center justify-between">
-      <CardTitle className="text-2xl">Workforce and Payroll Calculator</CardTitle>
-      <div className="flex space-x-2">
-        <Button onClick={clearAll} variant="outline" size="sm">
-          <Trash2 className="h-4 w-4 mr-2" /> Reset
-        </Button>
-        <Button onClick={saveCalculation} size="sm">
-          <Save className="h-4 w-4 mr-2" /> Save
-        </Button>
+    <CardHeader className="flex flex-col space-y-2">
+      <div className="flex flex-row items-center justify-between">
+        <CardTitle className="text-2xl">Workforce and Payroll Calculator</CardTitle>
+        <div className="flex space-x-2">
+          <Button onClick={clearAll} variant="outline" size="sm">
+            <Trash2 className="h-4 w-4 mr-2" /> Reset
+          </Button>
+          <Button onClick={saveCalculation} size="sm">
+            <Save className="h-4 w-4 mr-2" /> Save
+          </Button>
+        </div>
       </div>
+      <p className="text-muted-foreground">
+        Plan your workforce costs by adding owners and employees. Calculate salaries, payroll taxes, and 
+        benefits. Track full-time and part-time staff expenses across multiple years.
+      </p>
     </CardHeader>
     <CardContent>
       <Tabs defaultValue="year1">
