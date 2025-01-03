@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Minus, HelpCircle, Save, FileInput, Trash2, DollarSign } from 'lucide-react';
+import { Plus, Minus, HelpCircle, Save, FileInput, Trash2 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/Card';
